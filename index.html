@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>30-Day Business Implementation Interactive Workbook | Najmun LLC</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .tab-btn.active {
+      background-color: #0284c7;
+      color: #ffffff;
+      border-color: #0284c7;
+    }
+    @media print {
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      body { background: white; color: black; }
+      .tab-content { display: block !important; page-break-after: always; }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+
+  <!-- Top Navigation & Header -->
+  <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50 no-print shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <div class="text-xs font-bold tracking-widest text-sky-400 uppercase">Graduate! Philadelphia Entrepreneur Track</div>
+        <h1 class="text-2xl font-extrabold text-white flex items-center gap-2">
+          <i class="fa-solid fa-book-bookmark text-sky-400"></i>
+          30-Day Interactive Business Implementation Workbook
+        </h1>
+      </div>
+      
+      <!-- Progress Bar & Global Actions -->
+      <div class="flex items-center gap-4">
+        <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 min-w-[200px]">
+          <div class="flex justify-between text-xs font-semibold mb-1">
+            <span class="text-slate-300">Workbook Progress</span>
+            <span id="progress-text" class="text-sky-400">0%</span>
+          </div>
+          <div class="w-full bg-slate-700 h-2 rounded-full overflow-hidden">
+            <div id="progress-bar" class="bg-sky-500 h-full w-0 transition-all duration-300"></div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="saveWorkbookToLocalStorage()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-floppy-disk"></i> Save
+          </button>
+          <button onclick="exportWorkbookData()" class="px-3 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-download"></i> Export JSON
+          </button>
+          <button onclick="window.print()" class="px-3 py-2 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold rounded-lg flex items-center gap-1.5 transition">
+            <i class="fa-solid fa-print"></i> Print PDF
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Notification Banner -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-emerald-600 text-white px-4 py-3 rounded-lg shadow-xl text-sm font-semibold hidden z-50 flex items-center gap-2">
+    <i class="fa-solid fa-circle-check"></i> <span id="toast-msg">Saved successfully!</span>
+  </div>
+
+  <!-- Main Interactive Layout -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-grow w-full">
+
+    <!-- Tab Buttons -->
+    <div class="no-print flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-3">
+      <button onclick="switchTab('tab-overview')" id="btn-tab-overview" class="tab-btn active px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-compass"></i> Roadmap & Overview
+      </button>
+      <button onclick="switchTab('tab-ws1')" id="btn-tab-ws1" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-id-card"></i> WS1: Business Info Sheet
+      </button>
+      <button onclick="switchTab('tab-ws5')" id="btn-tab-ws5" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-address-book"></i> WS5: Prospect Tracker
+      </button>
+      <button onclick="switchTab('tab-ws6')" id="btn-tab-ws6" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-paper-plane"></i> WS6: Outreach Planner
+      </button>
+      <button onclick="switchTab('tab-ws8')" id="btn-tab-ws8" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-diagram-project"></i> WS8: Sales Pipeline Map
+      </button>
+      <button onclick="switchTab('tab-action')" id="btn-tab-action" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-bullseye"></i> First-Dollar Action Plan
+      </button>
+      <button onclick="switchTab('tab-journal')" id="btn-tab-journal" class="tab-btn px-4 py-2.5 rounded-lg text-sm font-semibold text-slate-700 bg-white border border-slate-200 hover:border-sky-500 transition flex items-center gap-2">
+        <i class="fa-solid fa-pen-to-square"></i> Weekly Reflection Journal
+      </button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW & ROADMAP -->
+    <div id="tab-overview" class="tab-content">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm mb-6">
+        <div class="max-w-3xl">
+          <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">30-Day Execution Framework</span>
+          <h2 class="text-2xl font-bold text-slate-900 mt-1 mb-3">Your Working Workbook Hub</h2>
+          <p class="text-slate-600 leading-relaxed text-sm sm:text-base">
+            This interactive workbook is designed for active implementation. Fill in your real business details, track prospective clients, draft custom sales communications, and map your 5-step sales funnel as you complete the Class 1 materials.
+          </p>
+        </div>
+
+        <!-- 30-Day Outcome Input -->
+        <div class="mt-6 p-4 bg-sky-50 border border-sky-200 rounded-lg">
+          <label class="block text-sm font-bold text-sky-900 mb-2" for="target-outcome">
+            <i class="fa-solid fa-bullseye text-sky-600 mr-1"></i> Measurable 30-Day Target Outcome
+          </label>
+          <input type="text" id="target-outcome" oninput="saveFieldValue(this)" class="w-full p-3 border border-sky-300 rounded-lg bg-white text-slate-800 text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="e.g., Secure 2 new retainer clients, send 10 custom emails per week, or launch my 3-item product bundle.">
+        </div>
+      </div>
+
+      <!-- Weekly Execution Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase">Week 1</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1 mb-2">1. Organize</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">Complete your core Business Information Sheet (WS1) and centralize legal credentials.</p>
+          </div>
+          <button onclick="switchTab('tab-ws1')" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1">Complete WS1 <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase">Week 2</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1 mb-2">2. Test & Prospect</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">Populate active prospects into your Prospect Tracker (WS5) and plan initial touchpoints.</p>
+          </div>
+          <button onclick="switchTab('tab-ws5')" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1">Open Prospect Tracker <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase">Week 3</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1 mb-2">3. Simplify Sales</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">Draft personalized email templates (WS6) and map out your exact 5-step sales pipeline (WS8).</p>
+          </div>
+          <button onclick="switchTab('tab-ws8')" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1">Map Sales Pipeline <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase">Week 4</span>
+            <h3 class="text-lg font-bold text-slate-900 mt-1 mb-2">4. Review & Execute</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">Commit to your First-Dollar Action Plan and conduct weekly progress reflections.</p>
+          </div>
+          <button onclick="switchTab('tab-action')" class="text-xs font-bold text-sky-600 hover:text-sky-800 flex items-center gap-1">Execute Action Plan <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: WORKSHEET 1 - BUSINESS INFO SHEET -->
+    <div id="tab-ws1" class="tab-content hidden">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Worksheet 1</span>
+            <h2 class="text-2xl font-bold text-slate-900">Business Information Sheet</h2>
+            <p class="text-slate-600 text-sm mt-1">Establish and record the central operational and legal data for your enterprise.</p>
+          </div>
+          <button onclick="loadSampleWS1()" class="no-print text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-semibold border border-slate-300">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Fill Sample Data
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Column 1 -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Official Business Name</label>
+              <input type="text" id="ws1-biz-name" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="e.g., Liberty Artisanal Soaps LLC">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">DBA / Trade Name (If Applicable)</label>
+              <input type="text" id="ws1-dba" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="e.g., Liberty Soaps">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Legal Structure / Entity Type</label>
+              <select id="ws1-entity-type" onchange="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none">
+                <option value="">Select Structure...</option>
+                <option value="Single-Member LLC">Single-Member LLC</option>
+                <option value="Multi-Member LLC">Multi-Member LLC</option>
+                <option value="Sole Proprietorship">Sole Proprietorship</option>
+                <option value="S-Corporation">S-Corporation</option>
+                <option value="Non-Profit">Non-Profit Organization</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Federal EIN Number</label>
+              <input type="text" id="ws1-ein" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="12-3456789">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Philly Commercial Activity License (CAL) #</label>
+              <input type="text" id="ws1-cal" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="e.g., CAL-894521">
+            </div>
+          </div>
+
+          <!-- Column 2 -->
+          <div class="space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Dedicated Business Phone</label>
+              <input type="text" id="ws1-phone" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="(215) 555-0192">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Official Business Email</label>
+              <input type="email" id="ws1-email" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="contact@yourbusiness.com">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Website / Domain URL</label>
+              <input type="text" id="ws1-website" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="www.yourbusiness.com">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Cloud Folder / Records Repository Link</label>
+              <input type="text" id="ws1-cloud" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Google Drive / Dropbox Folder URL">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Primary Business Model</label>
+              <input type="text" id="ws1-model" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="e.g., B2B Accounting Services, Retail Handcrafted Goods">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: WORKSHEET 5 - PROSPECT TRACKER -->
+    <div id="tab-ws5" class="tab-content hidden">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Worksheet 5</span>
+            <h2 class="text-2xl font-bold text-slate-900">Customer Prospect Tracker</h2>
+            <p class="text-slate-600 text-sm mt-1">Log potential clients, source channels, current status, and scheduled next actions.</p>
+          </div>
+          <div class="flex gap-2 no-print">
+            <button onclick="addProspectRow()" class="px-3 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg flex items-center gap-1.5">
+              <i class="fa-solid fa-plus"></i> Add Prospect
+            </button>
+            <button onclick="loadSampleProspects()" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg border border-slate-300">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Sample Leads
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[700px]">
+            <thead>
+              <tr class="bg-slate-900 text-white text-xs font-bold uppercase tracking-wider">
+                <th class="p-3 rounded-tl-lg">Type</th>
+                <th class="p-3">Prospect / Business Name</th>
+                <th class="p-3">Source Channel</th>
+                <th class="p-3">Pipeline Status</th>
+                <th class="p-3">Next Action & Date</th>
+                <th class="p-3 text-center no-print rounded-tr-lg">Action</th>
+              </tr>
+            </thead>
+            <tbody id="prospects-table-body" class="divide-y divide-slate-200 text-sm">
+              <!-- Rows injected dynamically via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: WORKSHEET 6 - OUTREACH PLANNER & EMAIL TEMPLATES -->
+    <div id="tab-ws6" class="tab-content hidden">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Worksheet 6</span>
+            <h2 class="text-2xl font-bold text-slate-900">Direct Outreach Planner & Script Studio</h2>
+            <p class="text-slate-600 text-sm mt-1">Craft personalized outreach messages that clearly present your offer and request a response.</p>
+          </div>
+          <button onclick="loadSampleOutreach()" class="no-print text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-semibold border border-slate-300">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Load Template
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Offer Definition Form -->
+          <div class="lg:col-span-5 space-y-4 bg-slate-50 p-5 rounded-lg border border-slate-200">
+            <h3 class="text-base font-bold text-slate-900 border-b border-slate-200 pb-2 flex items-center gap-2">
+              <i class="fa-solid fa-bullhorn text-sky-600"></i> Define Your Specific Offer
+            </h3>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Target Customer Profile</label>
+              <input type="text" id="ws6-target" oninput="saveFieldValue(this); updateOutreachPreview();" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-white" placeholder="e.g., Local small business owners without a dedicated accountant">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Specific Product / Service Deliverable</label>
+              <input type="text" id="ws6-deliverable" oninput="saveFieldValue(this); updateOutreachPreview();" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-white" placeholder="e.g., Organize 1 month of business receipts into labeled digital folders">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Price Point & Terms</label>
+              <input type="text" id="ws6-price" oninput="saveFieldValue(this); updateOutreachPreview();" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-white" placeholder="e.g., $150 flat fee per month">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Call to Action (CTA)</label>
+              <input type="text" id="ws6-cta" oninput="saveFieldValue(this); updateOutreachPreview();" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm bg-white" placeholder="e.g., Are you free for a 10-minute call this Thursday?">
+            </div>
+          </div>
+
+          <!-- Email Composer / Script -->
+          <div class="lg:col-span-7 flex flex-col space-y-4">
+            <div class="flex justify-between items-center">
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-envelope text-sky-600"></i> Customizable Email Template
+              </h3>
+              <button onclick="copyEmailScript()" class="no-print text-xs text-sky-600 hover:text-sky-800 font-bold flex items-center gap-1">
+                <i class="fa-solid fa-copy"></i> Copy Email Text
+              </button>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Subject Line</label>
+              <input type="text" id="ws6-subject" oninput="saveFieldValue(this)" class="w-full p-2.5 border border-slate-300 rounded-lg text-sm font-semibold text-slate-800" placeholder="Subject: Help organizing your business records">
+            </div>
+
+            <div class="flex-grow">
+              <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Email Body Draft</label>
+              <textarea id="ws6-body" oninput="saveFieldValue(this)" rows="10" class="w-full p-3 border border-slate-300 rounded-lg text-sm leading-relaxed text-slate-800 font-sans focus:ring-2 focus:ring-sky-500 focus:outline-none" placeholder="Draft your outreach email here..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: WORKSHEET 8 - SALES PIPELINE MAP -->
+    <div id="tab-ws8" class="tab-content hidden">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Worksheet 8</span>
+            <h2 class="text-2xl font-bold text-slate-900">5-Step Sales Process Pipeline Map</h2>
+            <p class="text-slate-600 text-sm mt-1">Define the exact sequential milestones prospective buyers take from initial discovery to confirmed payment.</p>
+          </div>
+          <button onclick="loadSampleWS8()" class="no-print text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-semibold border border-slate-300">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Sample Pipeline
+          </button>
+        </div>
+
+        <!-- Visual Flow Chart Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-8 text-center">
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <span class="text-[10px] font-bold text-sky-600 uppercase">Step 1</span>
+            <div class="font-bold text-slate-800 text-xs mt-1" id="step1-title-preview">1. Initial Inquiry / Lead</div>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <span class="text-[10px] font-bold text-sky-600 uppercase">Step 2</span>
+            <div class="font-bold text-slate-800 text-xs mt-1" id="step2-title-preview">2. Discovery / Demo</div>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <span class="text-[10px] font-bold text-sky-600 uppercase">Step 3</span>
+            <div class="font-bold text-slate-800 text-xs mt-1" id="step3-title-preview">3. Proposal / Quote</div>
+          </div>
+          <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <span class="text-[10px] font-bold text-sky-600 uppercase">Step 4</span>
+            <div class="font-bold text-slate-800 text-xs mt-1" id="step4-title-preview">4. Contract / Agreement</div>
+          </div>
+          <div class="p-3 bg-sky-600 text-white rounded-lg">
+            <span class="text-[10px] font-bold text-sky-200 uppercase">Step 5</span>
+            <div class="font-bold text-xs mt-1" id="step5-title-preview">5. Payment / Deposit</div>
+          </div>
+        </div>
+
+        <!-- 5 Steps Form -->
+        <div class="space-y-4">
+          <div class="p-4 border border-slate-200 rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <span class="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0">1</span>
+            <div class="flex-grow w-full grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="ws8-s1-name" oninput="saveFieldValue(this); updatePipelinePreview();" class="p-2 border rounded bg-white text-sm font-semibold" placeholder="Stage Name (e.g., Website Inquiry Form)">
+              <input type="text" id="ws8-s1-action" oninput="saveFieldValue(this)" class="p-2 border rounded bg-white text-sm" placeholder="Action Required (e.g., Respond within 24 hours with booking link)">
+            </div>
+          </div>
+
+          <div class="p-4 border border-slate-200 rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <span class="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0">2</span>
+            <div class="flex-grow w-full grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="ws8-s2-name" oninput="saveFieldValue(this); updatePipelinePreview();" class="p-2 border rounded bg-white text-sm font-semibold" placeholder="Stage Name (e.g., Discovery Consultation Call)">
+              <input type="text" id="ws8-s2-action" oninput="saveFieldValue(this)" class="p-2 border rounded bg-white text-sm" placeholder="Action Required (e.g., Conduct 15-min diagnostic call to clarify needs)">
+            </div>
+          </div>
+
+          <div class="p-4 border border-slate-200 rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <span class="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0">3</span>
+            <div class="flex-grow w-full grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="ws8-s3-name" oninput="saveFieldValue(this); updatePipelinePreview();" class="p-2 border rounded bg-white text-sm font-semibold" placeholder="Stage Name (e.g., Tailored Proposal Delivery)">
+              <input type="text" id="ws8-s3-action" oninput="saveFieldValue(this)" class="p-2 border rounded bg-white text-sm" placeholder="Action Required (e.g., Send PDF quote with 3 package options)">
+            </div>
+          </div>
+
+          <div class="p-4 border border-slate-200 rounded-lg bg-slate-50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <span class="w-8 h-8 rounded-full bg-sky-600 text-white font-bold flex items-center justify-center shrink-0">4</span>
+            <div class="flex-grow w-full grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="ws8-s4-name" oninput="saveFieldValue(this); updatePipelinePreview();" class="p-2 border rounded bg-white text-sm font-semibold" placeholder="Stage Name (e.g., Contract Signature)">
+              <input type="text" id="ws8-s4-action" oninput="saveFieldValue(this)" class="p-2 border rounded bg-white text-sm" placeholder="Action Required (e.g., Issue digital DocuSign contract)">
+            </div>
+          </div>
+
+          <div class="p-4 border border-sky-300 rounded-lg bg-sky-50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+            <span class="w-8 h-8 rounded-full bg-sky-800 text-white font-bold flex items-center justify-center shrink-0">5</span>
+            <div class="flex-grow w-full grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input type="text" id="ws8-s5-name" oninput="saveFieldValue(this); updatePipelinePreview();" class="p-2 border rounded bg-white text-sm font-semibold text-sky-900" placeholder="Stage Name (e.g., 50% Deposit / Invoicing)">
+              <input type="text" id="ws8-s5-action" oninput="saveFieldValue(this)" class="p-2 border rounded bg-white text-sm" placeholder="Action Required (e.g., Collect deposit via Stripe / QuickBooks invoice)">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: FIRST-DOLLAR ACTION PLAN -->
+    <div id="tab-action" class="tab-content hidden">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm">
+        <div class="flex justify-between items-start mb-6">
+          <div>
+            <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Revenue-Building Activity</span>
+            <h2 class="text-2xl font-bold text-slate-900">First-Dollar Action Commitment Sheet</h2>
+            <p class="text-slate-600 text-sm mt-1">Set explicit dates and actions to initiate sales outreach and generate initial revenue.</p>
+          </div>
+          <button onclick="loadSampleActionPlan()" class="no-print text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded font-semibold border border-slate-300">
+            <i class="fa-solid fa-wand-magic-sparkles text-amber-500 mr-1"></i> Sample Plan
+          </button>
+        </div>
+
+        <div class="space-y-4 max-w-4xl">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="md:col-span-1 text-sm font-bold text-slate-800 flex items-center">1. Target Customer Group</div>
+            <div class="md:col-span-2">
+              <input type="text" id="action-customer" oninput="saveFieldValue(this)" class="w-full p-2.5 border rounded bg-white text-sm" placeholder="e.g., Local boutique owners in Center City">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="md:col-span-1 text-sm font-bold text-slate-800 flex items-center">2. Product or Service Package</div>
+            <div class="md:col-span-2">
+              <input type="text" id="action-product" oninput="saveFieldValue(this)" class="w-full p-2.5 border rounded bg-white text-sm" placeholder="e.g., 3-Bar Handmade Artisanal Soap Gift Box">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="md:col-span-1 text-sm font-bold text-slate-800 flex items-center">3. Official Offer Price</div>
+            <div class="md:col-span-2">
+              <input type="text" id="action-price" oninput="saveFieldValue(this)" class="w-full p-2.5 border rounded bg-white text-sm" placeholder="e.g., $24.00 per set">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="md:col-span-1 text-sm font-bold text-slate-800 flex items-center">4. First 5 Target Leads</div>
+            <div class="md:col-span-2">
+              <textarea id="action-leads" oninput="saveFieldValue(this)" rows="3" class="w-full p-2.5 border rounded bg-white text-sm" placeholder="1. Store A&#10;2. Store B&#10;3. Store C&#10;4. Store D&#10;5. Store E"></textarea>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="md:col-span-1 text-sm font-bold text-slate-800 flex items-center">5. Initial Outreach Date & Channel</div>
+            <div class="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input type="date" id="action-outreach-date" onchange="saveFieldValue(this)" class="p-2.5 border rounded bg-white text-sm">
+              <input type="text" id="action-outreach-channel" oninput="saveFieldValue(this)" class="p-2.5 border rounded bg-white text-sm" placeholder="e.g., Direct Email & In-person Drop-off">
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="md:col-span-1 text-sm font-bold text-slate-800 flex items-center">6. Scheduled Follow-up Date</div>
+            <div class="md:col-span-2">
+              <input type="date" id="action-followup-date" onchange="saveFieldValue(this)" class="p-2.5 border rounded bg-white text-sm">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 7: WEEKLY REFLECTION JOURNAL -->
+    <div id="tab-journal" class="tab-content hidden">
+      <div class="bg-white p-6 sm:p-8 rounded-xl border border-slate-200 shadow-sm space-y-6">
+        <div>
+          <span class="text-xs font-bold text-sky-600 uppercase tracking-widest">Implementation Tracking</span>
+          <h2 class="text-2xl font-bold text-slate-900">4-Week Implementation Reflection Journal</h2>
+          <p class="text-slate-600 text-sm mt-1">Document friction, system tweaks, time savings, and outcome progress at each milestone.</p>
+        </div>
+
+        <div class="space-y-6">
+          <!-- Week 1 Reflection -->
+          <div class="p-5 border border-slate-200 rounded-lg bg-slate-50">
+            <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <span class="px-2.5 py-1 bg-sky-600 text-white text-xs font-bold rounded-full">Week 1</span>
+              Organize: Foundation & Procedure Completion
+            </h3>
+            <textarea id="journal-w1" oninput="saveFieldValue(this)" rows="3" class="w-full p-3 border border-slate-300 rounded-lg text-sm bg-white" placeholder="What core SOP or checklist was finalized this week? Where are credentials stored?"></textarea>
+          </div>
+
+          <!-- Week 2 Reflection -->
+          <div class="p-5 border border-slate-200 rounded-lg bg-slate-50">
+            <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <span class="px-2.5 py-1 bg-sky-600 text-white text-xs font-bold rounded-full">Week 2</span>
+              Test: Real Transaction Trial & Gaps
+            </h3>
+            <textarea id="journal-w2" oninput="saveFieldValue(this)" rows="3" class="w-full p-3 border border-slate-300 rounded-lg text-sm bg-white" placeholder="What happened when testing the process with an actual prospect or order? What friction points occurred?"></textarea>
+          </div>
+
+          <!-- Week 3 Reflection -->
+          <div class="p-5 border border-slate-200 rounded-lg bg-slate-50">
+            <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <span class="px-2.5 py-1 bg-sky-600 text-white text-xs font-bold rounded-full">Week 3</span>
+              Simplify: Template & Automation Integration
+            </h3>
+            <textarea id="journal-w3" oninput="saveFieldValue(this)" rows="3" class="w-full p-3 border border-slate-300 rounded-lg text-sm bg-white" placeholder="What email template, intake script, or automated tool was created to save time?"></textarea>
+          </div>
+
+          <!-- Week 4 Reflection -->
+          <div class="p-5 border border-slate-200 rounded-lg bg-slate-50">
+            <h3 class="text-base font-bold text-slate-900 mb-2 flex items-center gap-2">
+              <span class="px-2.5 py-1 bg-sky-600 text-white text-xs font-bold rounded-full">Week 4</span>
+              Review: 30-Day Target Evaluation & Next Priority
+            </h3>
+            <textarea id="journal-w4" oninput="saveFieldValue(this)" rows="3" class="w-full p-3 border border-slate-300 rounded-lg text-sm bg-white" placeholder="Did you hit your initial 30-day target outcome? What system will you build next month?"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 text-xs py-6 px-4 text-center border-t border-slate-800 mt-auto">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <div>Najmun LLC Business Hub | Graduate! Philadelphia Entrepreneur Track</div>
+      <div>© 2026 Shetechy Corp | A Najmun LLC Business | All Rights Reserved ™</div>
+    </div>
+  </footer>
+
+  <!-- JavaScript App Logic -->
+  <script>
+    // State management
+    let prospects = [];
+
+    // Initialize Application
+    window.addEventListener('DOMContentLoaded', () => {
+      loadWorkbookFromLocalStorage();
+      updateProgress();
+    });
+
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-' + tabId);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    // Dynamic Prospect Table Rendering
+    function renderProspectsTable() {
+      const tbody = document.getElementById('prospects-table-body');
+      tbody.innerHTML = '';
+
+      if (prospects.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6" class="p-6 text-center text-slate-400 italic">
+              No prospects added yet. Click "+ Add Prospect" or "Sample Leads" above to begin.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      prospects.forEach((p, index) => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50 transition";
+        tr.innerHTML = `
+          <td class="p-3">
+            <select onchange="updateProspect(${index}, 'type', this.value)" class="w-full p-1 border rounded bg-white text-xs">
+              <option value="Service" ${p.type === 'Service' ? 'selected' : ''}>Service</option>
+              <option value="Product" ${p.type === 'Product' ? 'selected' : ''}>Product</option>
+              <option value="B2B" ${p.type === 'B2B' ? 'selected' : ''}>B2B</option>
+            </select>
+          </td>
+          <td class="p-3">
+            <input type="text" value="${p.name || ''}" oninput="updateProspect(${index}, 'name', this.value)" class="w-full p-1.5 border rounded bg-white text-xs font-semibold" placeholder="Company/Client Name">
+          </td>
+          <td class="p-3">
+            <input type="text" value="${p.source || ''}" oninput="updateProspect(${index}, 'source', this.value)" class="w-full p-1.5 border rounded bg-white text-xs" placeholder="e.g. Networking">
+          </td>
+          <td class="p-3">
+            <select onchange="updateProspect(${index}, 'status', this.value)" class="w-full p-1 border rounded bg-white text-xs font-semibold">
+              <option value="Lead" ${p.status === 'Lead' ? 'selected' : ''}>Lead</option>
+              <option value="Contacted" ${p.status === 'Contacted' ? 'selected' : ''}>Contacted</option>
+              <option value="Proposal Sent" ${p.status === 'Proposal Sent' ? 'selected' : ''}>Proposal Sent</option>
+              <option value="Closed Won" ${p.status === 'Closed Won' ? 'selected' : ''}>Closed Won</option>
+              <option value="Closed Lost" ${p.status === 'Closed Lost' ? 'selected' : ''}>Closed Lost</option>
+            </select>
+          </td>
+          <td class="p-3">
+            <input type="text" value="${p.nextAction || ''}" oninput="updateProspect(${index}, 'nextAction', this.value)" class="w-full p-1.5 border rounded bg-white text-xs" placeholder="Follow-up note & date">
+          </td>
+          <td class="p-3 text-center no-print">
+            <button onclick="removeProspect(${index})" class="text-rose-500 hover:text-rose-700 p-1">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateProgress();
+    }
+
+    function addProspectRow() {
+      prospects.push({ type: 'Service', name: '', source: '', status: 'Lead', nextAction: '' });
+      renderProspectsTable();
+      saveWorkbookToLocalStorage();
+    }
+
+    function removeProspect(index) {
+      prospects.splice(index, 1);
+      renderProspectsTable();
+      saveWorkbookToLocalStorage();
+    }
+
+    function updateProspect(index, field, value) {
+      prospects[index][field] = value;
+      saveWorkbookToLocalStorage();
+      updateProgress();
+    }
+
+    // Auto-save form fields
+    function saveFieldValue(inputEl) {
+      saveWorkbookToLocalStorage();
+      updateProgress();
+    }
+
+    // Update Email Script Live Preview
+    function updateOutreachPreview() {
+      const target = document.getElementById('ws6-target').value || '[Target Customer]';
+      const deliverable = document.getElementById('ws6-deliverable').value || '[Specific Deliverable]';
+      const price = document.getElementById('ws6-price').value || '[Price]';
+      const cta = document.getElementById('ws6-cta').value || '[Call To Action]';
+
+      const bodyText = `Hi [Customer Name],\n\nMy name is [Your Name], and I operate [Business Name]. I specialize in supporting ${target}.\n\nOur primary package includes ${deliverable} for ${price}.\n\n${cta}\n\nThank you,\n[Your Name]\n[Business Name] | [Contact Info]`;
+      
+      document.getElementById('ws6-body').value = bodyText;
+    }
+
+    function updatePipelinePreview() {
+      document.getElementById('step1-title-preview').innerText = document.getElementById('ws8-s1-name').value || '1. Initial Lead';
+      document.getElementById('step2-title-preview').innerText = document.getElementById('ws8-s2-name').value || '2. Discovery';
+      document.getElementById('step3-title-preview').innerText = document.getElementById('ws8-s3-name').value || '3. Proposal';
+      document.getElementById('step4-title-preview').innerText = document.getElementById('ws8-s4-name').value || '4. Contract';
+      document.getElementById('step5-title-preview').innerText = document.getElementById('ws8-s5-name').value || '5. Payment';
+    }
+
+    // Copy Email helper
+    function copyEmailScript() {
+      const body = document.getElementById('ws6-body');
+      body.select();
+      document.execCommand('copy');
+      showToast('Email draft copied to clipboard!');
+    }
+
+    // Sample Data Injectors
+    function loadSampleWS1() {
+      document.getElementById('ws1-biz-name').value = 'Philly Virtual Accounting LLC';
+      document.getElementById('ws1-dba').value = 'Philly Accounting Hub';
+      document.getElementById('ws1-entity-type').value = 'Single-Member LLC';
+      document.getElementById('ws1-ein').value = '12-3456789';
+      document.getElementById('ws1-cal').value = 'CAL-894521';
+      document.getElementById('ws1-phone').value = '(215) 555-0192';
+      document.getElementById('ws1-email').value = 'contact@phillyaccounting.com';
+      document.getElementById('ws1-website').value = 'www.phillyaccounting.com';
+      document.getElementById('ws1-cloud').value = 'https://drive.google.com/drive/folders/sample';
+      document.getElementById('ws1-model').value = 'B2B Consulting & Monthly Financial Retainers';
+      saveWorkbookToLocalStorage();
+      showToast('Sample Business Info Loaded!');
+    }
+
+    function loadSampleProspects() {
+      prospects = [
+        { type: 'Service', name: 'City Law Firm LLC', source: 'Networking Event', status: 'Contacted', nextAction: 'Send proposal on 10/24' },
+        { type: 'Product', name: 'Fairmount Boutique', source: 'Direct Email', status: 'Lead', nextAction: 'Drop off product catalog' },
+        { type: 'B2B', name: 'Main Street Cafe', source: 'Referral', status: 'Proposal Sent', nextAction: 'Follow up on contract sign' }
+      ];
+      renderProspectsTable();
+      saveWorkbookToLocalStorage();
+      showToast('Sample Prospects Loaded!');
+    }
+
+    function loadSampleOutreach() {
+      document.getElementById('ws6-target').value = 'small business owners who need organized receipt management';
+      document.getElementById('ws6-deliverable').value = 'organizing 1 month of business receipts into labeled digital folders';
+      document.getElementById('ws6-price').value = '$150 flat fee';
+      document.getElementById('ws6-cta').value = 'Are you free for a brief 10-minute discovery call this Thursday?';
+      document.getElementById('ws6-subject').value = 'Help organizing your business financial records';
+      updateOutreachPreview();
+      saveWorkbookToLocalStorage();
+      showToast('Sample Outreach Script Loaded!');
+    }
+
+    function loadSampleWS8() {
+      document.getElementById('ws8-s1-name').value = 'Inquiry Form Submission';
+      document.getElementById('ws8-s1-action').value = 'Send calendar booking link within 12 hours';
+      document.getElementById('ws8-s2-name').value = '15-Minute Discovery Call';
+      document.getElementById('ws8-s2-action').value = 'Audit current process and assess client fit';
+      document.getElementById('ws8-s3-name').value = 'Proposal Delivery';
+      document.getElementById('ws8-s3-action').value = 'Send scope of work PDF with price options';
+      document.getElementById('ws8-s4-name').value = 'Agreement Signing';
+      document.getElementById('ws8-s4-action').value = 'Send DocuSign contract';
+      document.getElementById('ws8-s5-name').value = '50% Deposit Invoice';
+      document.getElementById('ws8-s5-action').value = 'Receive payment via Stripe before kickoff';
+      updatePipelinePreview();
+      saveWorkbookToLocalStorage();
+      showToast('Sample Sales Pipeline Loaded!');
+    }
+
+    function loadSampleActionPlan() {
+      document.getElementById('action-customer').value = 'Center City Retail Boutiques';
+      document.getElementById('action-product').value = 'Handcrafted Soap Wholesale Starter Bundle';
+      document.getElementById('action-price').value = '$120 for 15 units';
+      document.getElementById('action-leads').value = "1. Boutique A (Rittenhouse)\n2. Boutique B (Old City)\n3. Shop C (Fishtown)\n4. Store D (South St)\n5. Shop E (Northern Liberties)";
+      document.getElementById('action-outreach-channel').value = 'In-Person Sample Delivery & Email';
+      saveWorkbookToLocalStorage();
+      showToast('Sample Action Plan Loaded!');
+    }
+
+    // Local Storage Persistence
+    function saveWorkbookToLocalStorage() {
+      const inputs = document.querySelectorAll('input, select, textarea');
+      const formData = {};
+      inputs.forEach(input => {
+        if (input.id) formData[input.id] = input.value;
+      });
+
+      const dataToSave = {
+        formData: formData,
+        prospects: prospects
+      };
+
+      localStorage.setItem('najmun_workbook_data', JSON.stringify(dataToSave));
+      updateProgress();
+    }
+
+    function loadWorkbookFromLocalStorage() {
+      const saved = localStorage.getItem('najmun_workbook_data');
+      if (!saved) {
+        renderProspectsTable();
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.formData) {
+          Object.keys(parsed.formData).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = parsed.formData[id];
+          });
+        }
+        if (parsed.prospects) {
+          prospects = parsed.prospects;
+        }
+        renderProspectsTable();
+        updatePipelinePreview();
+      } catch (e) {
+        console.error("Error loading workbook data", e);
+      }
+    }
+
+    // Export Data as JSON
+    function exportWorkbookData() {
+      const saved = localStorage.getItem('najmun_workbook_data') || '{}';
+      const blob = new Blob([saved], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'My_30_Day_Implementation_Workbook.json';
+      a.click();
+      showToast('Workbook Data Exported!');
+    }
+
+    // Progress Calculation
+    function updateProgress() {
+      const allInputs = document.querySelectorAll('input, select, textarea');
+      let filled = 0;
+      let total = 0;
+
+      allInputs.forEach(input => {
+        if (input.id && input.type !== 'hidden') {
+          total++;
+          if (input.value.trim() !== '') filled++;
+        }
+      });
+
+      if (prospects.length > 0) filled += prospects.length;
+      total += 3; // weight for prospects
+
+      const percent = total > 0 ? Math.min(100, Math.round((filled / total) * 100)) : 0;
+      document.getElementById('progress-bar').style.width = percent + '%';
+      document.getElementById('progress-text').innerText = percent + '%';
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => toast.classList.add('hidden'), 3000);
+    }
+  </script>
+</body>
+</html>
